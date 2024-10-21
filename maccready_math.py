@@ -9,6 +9,7 @@ def calculate_time_between_top_of_thermals(distance_m, thermal_strength_ms, velo
         The strength of the next thermal
         The velocity of the glider
         The sink rate of the glider at the given velocity
+        The headwind faced by the glider
 
     This function calculates the time it will take to both glide and climb to the top of the next thermal. 
 
@@ -20,7 +21,7 @@ def calculate_time_between_top_of_thermals(distance_m, thermal_strength_ms, velo
     _/                           `   ~           _/
     _/                                   `   ~   _/
 
-    Glide Time = Distance / Velocity. 
+    Glide Time = Distance / ( Velocity - Headwind ). 
 
     Climb Time = Altitude Lost / Thermal Strength 
     Where:
@@ -30,7 +31,7 @@ def calculate_time_between_top_of_thermals(distance_m, thermal_strength_ms, velo
     Therefore, 
     Total Time = Glide Time + (Glide Time * Sink Rate) / Thermal Strength
     or 
-    Total Time = Glide Time * (1 + (|Sink Rate| / Thermal Strength))
+    Total Time = (Distance / ( Velocity - Headwind )) * (1 + (|Sink Rate| / Thermal Strength))
     '''
     return ((distance_m/(velocity_ms-headwind_ms))*(1+abs(sink_rate)/thermal_strength_ms))
 
