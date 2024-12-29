@@ -1,5 +1,6 @@
 import numpy as np
 
+DISTANCE_BETWEEN_THERMALS = 1000
 
 def calculate_time_between_top_of_thermals(distance_m, thermal_strength_ms, velocity_ms, sink_rate, headwind_ms=0):
     '''
@@ -36,7 +37,7 @@ def calculate_time_between_top_of_thermals(distance_m, thermal_strength_ms, velo
     return ((distance_m/(velocity_ms-headwind_ms))*(1+abs(sink_rate)/thermal_strength_ms))
 
 
-def calculate_speed_to_fly(glide_polar, thermal_strengths, wind_speeds):
+def calculate_speed_to_fly(glide_polar, thermal_strengths, wind_speed):
     '''
     Given a polar, a list of thermal strengths in m/s, and a list of wind speeds in m/s, calculate the time
     it will take to fly between between thermals at all velocites provided in the polar. From these times, 
@@ -53,17 +54,20 @@ def calculate_speed_to_fly(glide_polar, thermal_strengths, wind_speeds):
     time_to_fly_thermals = {}
     for thermal_strength in thermal_strengths:
         time_to_fly_thermals[thermal_strength] = {}
-        for wind_speed in wind_speeds:
-            time_to_fly_thermals[thermal_strength][wind_speed] = {
-                "velocity_ms": [], "time_to_fly": [], "speed_to_fly": ""}
-            for (velocity_ms, sink_rate) in zip(glide_polar.velocity_ms, glide_polar.sink_rate):
-                time_to_fly = calculate_time_between_top_of_thermals(
-                    1000, thermal_strength, velocity_ms, sink_rate, wind_speed)
-                time_to_fly_thermals[thermal_strength][wind_speed]["velocity_ms"].append(
-                    velocity_ms)
-                time_to_fly_thermals[thermal_strength][wind_speed]["time_to_fly"].append(
-                    time_to_fly)
-            time_to_fly_thermals[thermal_strength][wind_speed]["speed_to_fly"] = np.argmin(
-                time_to_fly_thermals[thermal_strength][wind_speed]["time_to_fly"])
-
+        time_to_fly_thermals[thermal_strength] = {
+            "wind_speed": wind_speed,
+            "velocity_ms": [], "time_to_fly": [], "speed_to_fly": ""}
+        for (velocity_ms, sink_rate) in zip(glide_polar.velocity_ms, glide_polar.sink_rate):
+            time_to_fly = calculate_time_between_top_of_thermals(
+                DISTANCE_BETWEEN_THERMALS, thermal_strength, velocity_ms, sink_rate, wind_speed)
+            time_to_fly_thermals[thermal_strength]["velocity_ms"].append(
+                velocity_ms)
+            time_to_fly_thermals[thermal_strength]["time_to_fly"].append(
+                time_to_fly)
+        speed_to_fly_index = np.argmin(
+            time_to_fly_thermals[thermal_strength]["time_to_fly"])
+        time_to_fly_thermals[thermal_strength]["speed_to_fly_index"] = speed_to_fly_index
+        time_to_fly_thermals[thermal_strength]["speed_to_fly"] = time_to_fly_thermals[thermal_strength]["velocity_ms"][speed_to_fly_index]
+        time_to_fly_thermals[thermal_strength]["time_to_fly_speed_to_fly"] = time_to_fly_thermals[thermal_strength]["time_to_fly"][speed_to_fly_index]
+        time_to_fly_thermals[thermal_strength]["speed_made_good"] = 3.6 * DISTANCE_BETWEEN_THERMALS/(time_to_fly_thermals[thermal_strength]["time_to_fly_speed_to_fly"])
     return time_to_fly_thermals

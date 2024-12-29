@@ -38,7 +38,7 @@ class GlidePolar:
         else:
             return "Invalid Index"
         
-    def plot_polar(self):
+    def plot_curves(self):
         fig = plt.figure()
         gs = fig.add_gridspec(2, hspace=0)
         ax_top, ax_bottom = gs.subplots(sharex=True)
@@ -52,3 +52,16 @@ class GlidePolar:
         ax_bottom.grid(True, linestyle='-.')
 
         ax_top.set_title("Polar Curves")
+
+    def plot_polar(self, ax, color = None, label = None):
+        ax.plot(self.velocity_kmh, self.sink_rate, "o-", color = color, label = label)
+        ax.set_ylabel("Sink Rate")
+        ax.set_xlabel("Velocity Km/h")
+        ax.grid(True, linestyle='-.')
+
+
+    def plot_glide(self, ax, color = None, label = None):
+        ax.plot(self.velocity_kmh, self.glide_ratio, "o-", color = color, label = label)
+        ax.set_ylabel("Glide Ratio")
+        ax.set_xlabel("Velocity Km/h")
+        ax.grid(True, linestyle='-.')
